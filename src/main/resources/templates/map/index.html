@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Hello Spring Security</title>
+<meta charset="utf-8" />
+
+<link rel="stylesheet" type="text/css"
+	href="webjars/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+	th:href="@{/webjars/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css}" />
+<link rel="stylesheet" href="/css/main.css"
+	th:href="@{/webjars/leaflet/1.0.3/leaflet.css}" />
+<script type="text/javascript" src="/webjars/leaflet/1.0.3/leaflet.js"
+	th:src="@{/webjars/leaflet/1.0.3/leaflet.js}"></script>
+<link rel="stylesheet" href="/css/main.css" th:href="@{/css/main.css}" />
+<style type="text/css">
+.container-full {
+	position: absolute;
+	bottom: 0px;
+	top: 50px;
+	width: 100%;
+	overflow: auto;
+}
+
+#mapid {
+	height: 100%;
+	width: 100%;
+}
+
+.navbar {
+	z-index: 10000;
+}
+}
+</style>
+</head>
+
+<body>
+
+	<nav class="navbar navbar-toggleable-md navbar-light bg-faded">
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarTogglerDemo01"
+			aria-controls="navbarTogglerDemo01" aria-expanded="false"
+			aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+			<a class="navbar-brand" href="#">Spring  -Leaflet</a>
+			<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+				<li class="nav-item active"><a class="nav-link" href="#">Home
+						<span class="sr-only">(current)</span>
+				</a></li>
+			</ul>
+			<div th:substituteby="index::logout"></div>
+		</div>
+	</nav>
+	<div class="container-full">
+		<div id="mapid"></div>
+	</div>
+
+	<a href="/index" th:href="@{/index}">Back to home page</a>
+
+
+
+	<script th:inline="javascript">
+/*<![CDATA[*/
+var serverContext = [[@{/}]];
+var model_map = [[${model.map}]];
+var mymap = L.map('mapid').setView([ model_map.centerY,model_map.centerX], model_map.zoom);
+new L.tileLayer(
+		'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom : 19
+		}).addTo(mymap);
+mymap.on('zoomend', updateLeafletMap,mymap);
+mymap.on('moveend', updateLeafletMap, mymap);
+
+function updateLeafletMap(ev){
+	var map = this;
+	var form_data = new FormData();
+	form_data.append([[${_csrf.parameterName}]], [[${_csrf.token}]]);
+	form_data.append('zoom',map.getZoom());
+	form_data.append('baseLayer',model_map.baseLayer);
+	form_data.append('centerX',map.getCenter().lng);
+	form_data.append('centerY',map.getCenter().lat);
+	form_data.append('id',model_map.id);
+
+    $.ajax({
+    	  url: serverContext + 'map/update',
+    	  data: form_data,
+    	  processData: false,
+    	  contentType: false,
+    	  type: 'POST',
+    	  success: function(data){
+    		  console.log(data)
+    	  }
+    	});
+}
+/*]]>*/
+</script>
+
+	<script type="text/javascript"
+		src="webjars/tether/1.4.0/dist/js/tether.min.js"
+		th:src="@{/webjars/tether/1.4.0/dist/js/tether.min.js}"></script>
+	<!-- /.container -->
+	<script type="text/javascript" src="webjars/jquery/3.2.0/jquery.min.js"
+		th:src="@{/webjars/jquery/3.2.0/jquery.min.js}"></script>
+	<script type="text/javascript"
+		src="webjars/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"
+		th:src="@{/webjars/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js}"></script>
+</body>
+</html>
