@@ -1,2 +1,2 @@
 # Spring-Boot-Leaflet
-Spring Boot and Leaflet integratio (Thymeleaf)
+Spring Boot and Leaflet integration (Thymeleaf)
